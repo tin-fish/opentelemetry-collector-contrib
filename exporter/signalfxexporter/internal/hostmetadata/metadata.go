@@ -4,11 +4,13 @@
 package hostmetadata // import "github.com/open-telemetry/opentelemetry-collector-contrib/exporter/signalfxexporter/internal/hostmetadata"
 
 import (
+	"io/ioutil"
 	"sync"
 
 	"go.opentelemetry.io/collector/pdata/pcommon"
 	"go.opentelemetry.io/collector/pdata/pmetric"
 	"go.uber.org/zap"
+	"gopkg.in/yaml.v2"
 
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/signalfxexporter/internal/dimensions"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/internal/splunk"
@@ -19,14 +21,16 @@ import (
 type Syncer struct {
 	logger    *zap.Logger
 	dimClient dimensions.MetadataUpdateClient
+	metaPath  string
 	once      sync.Once
 }
 
 // NewSyncer creates new instance of host metadata syncer.
-func NewSyncer(logger *zap.Logger, dimClient dimensions.MetadataUpdateClient) *Syncer {
+func NewSyncer(logger *zap.Logger, dimClient dimensions.MetadataUpdateClient, metaPath string) *Syncer {
 	return &Syncer{
 		logger:    logger,
 		dimClient: dimClient,
+		metaPath:  metaPath,
 	}
 }
 
@@ -112,6 +116,25 @@ func (s *Syncer) scrapeHostProperties() map[string]string {
 	} else {
 		s.logger.Warn("Failed to scrape host hostOS metadata", zap.Error(err))
 	}
-
+	if s.metaPath != "" {
+		yamlFile, err := ioutil.ReadFile(s.metaPath)
+		if err == nil {
+			var appendMeta map[string]string
+			err := yaml.Unmarshal(yamlFile, &appendMeta)
+			if err != nil {
+				s.logger.Warn("Failed to unmarshal local file", zap.Error(err))
+			} else {
+				for k, v := range appendMeta {
+					if _, exists := props[k]; !exists {
+						props[k] = v
+					} else {
+						s.logger.Debug("Skipped property already exists", zap.String("property:", k))
+					}
+				}
+			}
+		} else {
+			s.logger.Warn("Failed to read local file", zap.Error(err))
+		}
+	}
 	return props
 }
