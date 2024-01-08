@@ -103,6 +103,7 @@ The following configuration options can also be configured:
   processor is enabled in the pipeline with one of the cloud provider detectors
   or environment variable detector setting a unique value to `host.name` attribute
   within your k8s cluster. And keep `override=true` in resourcedetection config.
+- `local_meta_file`: To add a locally maintained metadata file, specify path to a simple key-value format in yaml (no default)
 - `exclude_properties`: A list of property filters to limit dimension update content.
   Property filters can contain any number of the following fields, supporting (negated)
   string literals, re2 `/regex/`, and [glob](https://github.com/gobwas/glob) syntax values:

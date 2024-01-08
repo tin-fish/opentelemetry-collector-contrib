@@ -109,6 +109,10 @@ type Config struct {
 	//            And keep `override=true` in resourcedetection config.
 	SyncHostMetadata bool `mapstructure:"sync_host_metadata"`
 
+	// LocalMetaFile defined the path to a simple key-value pair yaml file of locally maintained
+	// attributes that will be sent with sync_host_metadata
+	LocalMetaFile string `mapstructure:"local_meta_file"`
+
 	// ExcludeMetrics defines dpfilter.MetricFilters that will determine metrics to be
 	// excluded from sending to SignalFx backend. If translations enabled with
 	// TranslationRules options, the exclusion will be applie on translated metrics.

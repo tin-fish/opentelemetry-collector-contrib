@@ -158,7 +158,7 @@ func (se *signalfxExporter) start(ctx context.Context, host component.Host) (err
 
 	var hms *hostmetadata.Syncer
 	if se.config.SyncHostMetadata {
-		hms = hostmetadata.NewSyncer(se.logger, dimClient)
+		hms = hostmetadata.NewSyncer(se.logger, dimClient, se.config.LocalMetaFile)
 	}
 	se.dimClient = dimClient
 	se.pushMetricsData = dpClient.pushMetricsData
